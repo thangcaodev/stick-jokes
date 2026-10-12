@@ -1,11 +1,14 @@
 """Write today's Kid Logic episode with an LLM and save it as stories/<date>-<slug>.json.
 
 Usage:  python3 scripts/generate_story.py            -> prints the story path
-Free LLM providers (tried in this order; a provider is used when its key is set):
-  GEMINI_API_KEY      Google AI Studio  (https://aistudio.google.com/apikey, no card needed)
-  GROQ_API_KEY        Groq              (https://console.groq.com/keys, no card needed)
-  OPENROUTER_API_KEY  OpenRouter :free models
-Or any OpenAI-compatible endpoint: LLM_BASE_URL + LLM_API_KEY + LLM_MODEL (comma-separated).
+
+Free LLM providers, tried in this order: Groq, then Gemini.
+Each provider can have several API keys. When a key fails (bad key, rate limit, quota,
+server error) the next key is tried, then the next provider.
+  GROQ_API_KEYS    one or more Groq keys, separated by commas or new lines (https://console.groq.com/keys)
+  GEMINI_API_KEYS  one or more Gemini keys                                  (https://aistudio.google.com/apikey)
+  (GROQ_API_KEY / GEMINI_API_KEY with a single key also work)
+  GROQ_MODEL, GEMINI_MODEL  optional, comma-separated model list
 LLM_MOCK_FILE=<json> skips the API and uses that file as the answer (for testing).
 
 The story is checked against the channel rules (cast, actions, simple English, length).
@@ -64,20 +67,26 @@ def build_prompt(history, situation, episode, score):
 
 
 # ------------------------------------------------------------------ llm
+def keys_from_env(*names):
+    keys = []
+    for name in names:
+        for k in re.split(r"[,\s]+", os.getenv(name, "")):
+            if k and k not in keys:
+                keys.append(k)
+    return keys
+
+
 def providers():
+    """(name, base_url, [keys], [models]) in the order they are tried: Groq first, then Gemini."""
     out = []
-    if os.getenv("LLM_BASE_URL") and os.getenv("LLM_API_KEY"):
-        out.append(("custom", os.getenv("LLM_BASE_URL"), os.getenv("LLM_API_KEY"),
-                    os.getenv("LLM_MODEL", "").split(",")))
-    if os.getenv("GEMINI_API_KEY"):
-        out.append(("gemini", "https://generativelanguage.googleapis.com/v1beta/openai", os.getenv("GEMINI_API_KEY"),
-                    os.getenv("GEMINI_MODEL", "gemini-2.5-flash,gemini-2.0-flash").split(",")))
-    if os.getenv("GROQ_API_KEY"):
-        out.append(("groq", "https://api.groq.com/openai/v1", os.getenv("GROQ_API_KEY"),
+    groq = keys_from_env("GROQ_API_KEYS", "GROQ_API_KEY")
+    if groq:
+        out.append(("groq", "https://api.groq.com/openai/v1", groq,
                     os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").split(",")))
-    if os.getenv("OPENROUTER_API_KEY"):
-        out.append(("openrouter", "https://openrouter.ai/api/v1", os.getenv("OPENROUTER_API_KEY"),
-                    os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct:free").split(",")))
+    gemini = keys_from_env("GEMINI_API_KEYS", "GEMINI_API_KEY")
+    if gemini:
+        out.append(("gemini", "https://generativelanguage.googleapis.com/v1beta/openai", gemini,
+                    os.getenv("GEMINI_MODEL", "gemini-2.5-flash,gemini-2.0-flash").split(",")))
     return out
 
 
@@ -100,36 +109,44 @@ def post(url, key, body):
     return status, data, raw
 
 
+KEY_ERRORS = {0, 401, 403, 429, 500, 502, 503, 504}  # this key/model is unusable right now -> try the next key
+
+
 def chat(messages):
     mock = os.getenv("LLM_MOCK_FILE")
     if mock:
         return Path(mock).read_text()
     plist = providers()
     if not plist:
-        sys.exit("No LLM key configured. Add a repository secret GEMINI_API_KEY (free at "
-                 "https://aistudio.google.com/apikey) or GROQ_API_KEY (free at https://console.groq.com/keys).")
+        sys.exit("No LLM key configured. Add repository secrets GROQ_API_KEYS (https://console.groq.com/keys) "
+                 "and/or GEMINI_API_KEYS (https://aistudio.google.com/apikey). Several keys can be separated by commas.")
     errors = []
-    for name, base, key, models in plist:
+    for name, base, keys, models in plist:
+        url = f"{base.rstrip('/')}/chat/completions"
         for model in [m.strip() for m in models if m.strip()]:
-            body = {"model": model, "messages": messages, "temperature": 0.9,
-                    "response_format": {"type": "json_object"}}
-            url = f"{base.rstrip('/')}/chat/completions"
-            for attempt in range(2):
+            model_missing = False
+            for ki, key in enumerate(keys):
+                tag = f"{name}/{model} key#{ki + 1} (...{key[-4:]})"
+                body = {"model": model, "messages": messages, "temperature": 0.9,
+                        "response_format": {"type": "json_object"}}
                 status, data, raw = post(url, key, body)
+                if status == 400 and "response_format" in raw:
+                    body.pop("response_format")  # no JSON mode: rely on the prompt
+                    status, data, raw = post(url, key, body)
                 if status == 200 and data and data.get("choices"):
-                    print(f"  model: {name}/{model}", file=sys.stderr)
+                    print(f"  using {tag}", file=sys.stderr)
                     return data["choices"][0]["message"]["content"]
-                if status == 400 and "response_format" in body and attempt == 0:
-                    body.pop("response_format")  # provider does not support JSON mode: ask in the prompt only
+                msg = f"{tag}: HTTP {status}: {raw[:240].strip() or '(empty response)'}"
+                errors.append(msg)
+                print(f"  ! {msg}", file=sys.stderr)
+                if status == 404 or "model" in raw.lower() and status == 400:
+                    model_missing = True  # this model does not exist for the provider: skip its other keys
+                    break
+                if status not in KEY_ERRORS:
                     continue
-                if status == 429 and attempt == 0:
-                    time.sleep(20)
-                    continue
-                break
-            msg = f"{name}/{model}: HTTP {status}: {raw[:300].strip() or '(empty response)'}"
-            errors.append(msg)
-            print(f"  ! {msg}", file=sys.stderr)
-    sys.exit("All LLM providers failed:\n- " + "\n- ".join(errors))
+            if model_missing:
+                continue
+    sys.exit("All LLM keys failed:\n- " + "\n- ".join(errors))
 
 
 def extract_json(text):

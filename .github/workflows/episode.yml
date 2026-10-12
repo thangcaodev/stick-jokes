@@ -73,10 +73,12 @@ jobs:
       - name: Write today's story
         id: story
         env:
-          # free LLM keys, add them in Settings -> Secrets and variables -> Actions
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Free LLM keys (Settings -> Secrets and variables -> Actions). Groq is tried first, then Gemini.
+          # Put several keys in one secret, separated by commas: if one fails the next is used.
+          GROQ_API_KEYS: ${{ secrets.GROQ_API_KEYS }}
+          GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SITUATION: ${{ inputs.situation }}
         run: |
           if [ -n "${{ inputs.story }}" ]; then
