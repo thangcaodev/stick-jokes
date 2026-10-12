@@ -1,0 +1,220 @@
+{
+ "id": "demo",
+ "episode": 1,
+ "score": {
+  "kid": 1,
+  "adults": 0
+ },
+ "title": "Leo Was TOO Honest\u2026",
+ "rule": "Be honest!",
+ "topic": "homework: write about your family",
+ "hook": {
+  "caption": "THIS MORNING\u2026",
+  "scene": {
+   "background": "kitchen",
+   "left": "leo",
+   "right": "dad"
+  },
+  "lines": [
+   {
+    "speaker": "dad",
+    "text": "Leo! You told the *WHOLE* class about my *DONUTS?!*",
+    "action": "point",
+    "expression": "annoyed",
+    "listener": {
+     "action": "idle",
+     "expression": "neutral"
+    }
+   },
+   {
+    "speaker": "leo",
+    "text": "Ms. Lee said: be *honest.*",
+    "action": "shrug",
+    "expression": "smug",
+    "listener": {
+     "action": "facepalm",
+     "expression": "worried"
+    }
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "background": "classroom",
+   "caption": "AT SCHOOL",
+   "left": "leo",
+   "right": "ms_lee",
+   "props": {
+    "leo": "paper"
+   },
+   "lines": [
+    {
+     "speaker": "ms_lee",
+     "text": "Homework: write about your family. Be *honest!*",
+     "action": "point",
+     "expression": "happy",
+     "listener": {
+      "action": "idle",
+      "expression": "happy"
+     }
+    },
+    {
+     "speaker": "leo",
+     "text": "Okay! My family. By Leo.",
+     "action": "talk",
+     "expression": "happy",
+     "listener": {
+      "action": "idle",
+      "expression": "happy"
+     }
+    },
+    {
+     "speaker": "leo",
+     "text": "Grandpa says he never sleeps. He *snores* all day.",
+     "action": "talk",
+     "expression": "neutral",
+     "listener": {
+      "action": "laugh",
+      "expression": "happy"
+     }
+    },
+    {
+     "speaker": "leo",
+     "text": "Mom says she is 29. *Every* year.",
+     "action": "talk",
+     "expression": "neutral",
+     "listener": {
+      "action": "surprised",
+      "expression": "surprised"
+     }
+    },
+    {
+     "speaker": "leo",
+     "text": "Dad says he goes to the gym. He goes to the *donut shop.*",
+     "action": "talk",
+     "expression": "smug",
+     "listener": {
+      "action": "facepalm",
+      "expression": "happy"
+     }
+    },
+    {
+     "speaker": "ms_lee",
+     "text": "Very honest! *A plus!*",
+     "action": "celebrate",
+     "expression": "happy",
+     "pause_after": 0.4,
+     "listener": {
+      "action": "celebrate",
+      "expression": "happy"
+     }
+    }
+   ],
+   "board": "MY FAMILY"
+  },
+  {
+   "background": "kitchen",
+   "caption": "THAT EVENING",
+   "left": "leo",
+   "center": "dad",
+   "right": "mom",
+   "lines": [
+    {
+     "speaker": "mom",
+     "text": "The *gym*, honey?",
+     "action": "cross_arms",
+     "expression": "smug",
+     "listeners": {
+      "leo": {
+       "action": "idle",
+       "expression": "smug"
+      },
+      "dad": {
+       "action": "idle",
+       "expression": "worried"
+      }
+     }
+    },
+    {
+     "speaker": "dad",
+     "text": "He told everyone *your* secret too!",
+     "action": "point",
+     "expression": "annoyed",
+     "listeners": {
+      "leo": {
+       "action": "idle",
+       "expression": "neutral"
+      },
+      "mom": {
+       "action": "surprised",
+       "expression": "worried"
+      }
+     }
+    },
+    {
+     "speaker": "mom",
+     "text": "What secret?!",
+     "action": "talk",
+     "expression": "worried",
+     "listeners": {
+      "leo": {
+       "action": "idle",
+       "expression": "neutral"
+      },
+      "dad": {
+       "action": "cross_arms",
+       "expression": "smug"
+      }
+     }
+    },
+    {
+     "speaker": "leo",
+     "text": "You are 29. *Every* year.",
+     "action": "shrug",
+     "expression": "smug",
+     "pause_after": 0.6,
+     "listeners": {
+      "dad": {
+       "action": "cross_arms",
+       "expression": "smug"
+      },
+      "mom": {
+       "action": "think",
+       "expression": "neutral"
+      }
+     }
+    },
+    {
+     "speaker": "mom",
+     "text": "I'm 29?! Best son *EVER!*",
+     "action": "celebrate",
+     "expression": "happy",
+     "punchline": true,
+     "pause_after": 1.5,
+     "listeners": {
+      "leo": {
+       "action": "celebrate",
+       "expression": "happy"
+      },
+      "dad": {
+       "action": "facepalm",
+       "expression": "sad"
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "outro": {
+  "actions": {
+   "leo": "shrug",
+   "dad": "facepalm",
+   "mom": "celebrate"
+  },
+  "expressions": {
+   "leo": "smug",
+   "dad": "sad",
+   "mom": "happy"
+  }
+ }
+}

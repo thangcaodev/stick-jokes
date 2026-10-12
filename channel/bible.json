@@ -1,0 +1,53 @@
+{
+  "series": "KID LOGIC",
+  "tagline": "Leo always wins. Adults never learn.",
+  "premise": "Leo is 8. Adults give him a rule. Leo follows the rule EXACTLY as said, and the adults lose. Every episode ends with the scoreboard: KID LOGIC vs ADULTS.",
+  "sign_off": { "speaker": "leo", "text": "Kid logic. *Easy.*" },
+  "end_card": "Follow for more Kid Logic",
+  "palette": { "brand": "#ffd166", "accent": "#e63946", "ink": "#1f2233" },
+  "cast": {
+    "leo": {
+      "look": "kid", "gender": "male", "scale": 0.82, "age": 8,
+      "voice": { "kokoro": "am_puck", "supertonic": "M2" },
+      "personality": "the hero; calm, polite, takes every rule literally, always one step ahead",
+      "habits": "smug shrug when he wins; says 'Easy.'"
+    },
+    "mia": {
+      "look": "teen_girl", "gender": "female", "scale": 0.94, "age": 15,
+      "voice": { "kokoro": "af_heart", "supertonic": "F2" },
+      "personality": "Leo's big sister; dramatic, always on her phone, sometimes Leo's partner in crime"
+    },
+    "mom": {
+      "look": "mom", "gender": "female", "scale": 1.0,
+      "voice": { "kokoro": "af_nicole:0.5+af_heart:0.5", "supertonic": "F1" },
+      "personality": "strict but loving; makes the rules; shouts 'LEO!' when she loses"
+    },
+    "dad": {
+      "look": "dad", "gender": "male", "scale": 1.05,
+      "voice": { "kokoro": "am_michael:0.6+am_fenrir:0.4", "supertonic": "M1" },
+      "personality": "lazy and funny; tries to be the cool dad; has small secrets (donuts, naps, video games)"
+    },
+    "grandpa": {
+      "look": "grandpa", "gender": "male", "scale": 0.98,
+      "voice": { "kokoro": "bm_george:0.6+am_michael:0.4", "supertonic": "M3" },
+      "personality": "loves 'back in my day' stories; confused by phones; secretly on Leo's side"
+    },
+    "ms_lee": {
+      "look": "teacher", "gender": "female", "scale": 1.0,
+      "voice": { "kokoro": "af_bella", "supertonic": "F3" },
+      "personality": "Leo's teacher; strict, tired, but she laughs when Leo is clever"
+    },
+    "zoe": {
+      "look": "kid_girl", "gender": "female", "scale": 0.82, "age": 8,
+      "voice": { "kokoro": "af_sky", "supertonic": "F4" },
+      "personality": "Leo's best friend; asks the questions the viewer is thinking"
+    }
+  },
+  "formula": [
+    "COLD OPEN (2 lines): the funniest disaster from the end of the story. An adult shouts a short question with one *KEY* word. Freeze, then rewind.",
+    "SETUP (1-2 lines): an adult gives Leo a simple RULE. The viewer must hear the rule clearly.",
+    "THREE BEATS: Leo follows the rule literally, 3 times, each one bigger. The adult reacts each time.",
+    "TWIST: the rule comes back to the adult. The adult loses. The punchline is the shortest line (max 6 words).",
+    "SIGN-OFF: Leo says 'Kid logic. Easy.' and the scoreboard appears (added automatically)."
+  ]
+}

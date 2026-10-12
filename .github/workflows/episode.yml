@@ -1,0 +1,113 @@
+name: Kid Logic episode
+
+on:
+  schedule:
+    - cron: "0 1 * * *"          # every day 08:00 Vietnam time
+  workflow_dispatch:
+    inputs:
+      story:
+        description: "Render this story file instead of writing a new one (e.g. stories/demo.json)"
+        required: false
+        default: ""
+      situation:
+        description: "Force today's situation (optional, e.g. 'the spelling test')"
+        required: false
+        default: ""
+      tts_engine:
+        description: "Voice engine"
+        type: choice
+        options: [kokoro, supertonic]
+        default: kokoro
+  push:
+    branches: [main]
+    paths: [".github/workflows/episode.yml"]   # one test run when the workflow is first pushed
+
+permissions:
+  contents: write     # commit the new story + history
+  models: read        # GitHub Models (free LLM) with GITHUB_TOKEN
+
+concurrency:
+  group: episode
+  cancel-in-progress: false
+
+jobs:
+  episode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TTS_ENGINE: ${{ inputs.tts_engine || 'kokoro' }}
+      FPS: "30"
+      X264_PRESET: medium
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          pip install -r requirements.txt
+          npx remotion browser ensure
+
+      - name: Cache voice models
+        uses: actions/cache@v4
+        with:
+          path: models
+          key: kokoro-v1.0
+
+      - name: Download voice models
+        run: |
+          mkdir -p models
+          base=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0
+          [ -f models/kokoro.onnx ] || curl -sSL -o models/kokoro.onnx "$base/kokoro-v1.0.onnx"
+          [ -f models/voices.bin ]  || curl -sSL -o models/voices.bin  "$base/voices-v1.0.bin"
+          ls -la models
+
+      - name: Write today's story
+        id: story
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SITUATION: ${{ inputs.situation }}
+        run: |
+          if [ -n "${{ inputs.story }}" ]; then
+            path="${{ inputs.story }}"
+          else
+            path=$(python3 scripts/generate_story.py)
+          fi
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+          echo "id=$(python3 -c "import json;print(json.load(open('$path'))['id'])")" >> "$GITHUB_OUTPUT"
+          python3 scripts/summary.py "$path" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Voices, music and timing
+        run: python3 scripts/tts.py "${{ steps.story.outputs.path }}"
+
+      - name: Render video
+        run: node scripts/render.mjs "${{ steps.story.outputs.path }}"
+
+      - name: Upload video
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.story.outputs.id }}
+          path: |
+            out/${{ steps.story.outputs.id }}.mp4
+            ${{ steps.story.outputs.path }}
+          retention-days: 30
+
+      - name: Save story and history
+        if: inputs.story == ''
+        run: |
+          python3 scripts/record_episode.py "${{ steps.story.outputs.path }}"
+          git config user.name "kid-logic-bot"
+          git config user.email "kid-logic-bot@users.noreply.github.com"
+          git add stories channel/history.json
+          git commit -m "Episode: $(python3 -c "import json;print(json.load(open('${{ steps.story.outputs.path }}'))['title'])") [skip ci]" || exit 0
+          git pull --rebase origin main
+          git push
