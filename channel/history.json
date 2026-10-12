@@ -1,3 +1,16 @@
 {
- "episodes": []
+ "episodes": [
+  {
+   "episode": 1,
+   "date": "2026-10-12",
+   "id": "ep001-no-screens-at-dinner",
+   "title": "Mom Made ONE Strict Rule…",
+   "rule": "No screens at dinner!",
+   "situation": "screen time rules",
+   "score": {
+    "kid": 1,
+    "adults": 0
+   }
+  }
+ ]
 }

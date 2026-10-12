@@ -1,0 +1,247 @@
+{
+ "id": "ep001-no-screens-at-dinner",
+ "title": "Mom Made ONE Strict Rule…",
+ "rule": "No screens at dinner!",
+ "hook": {
+  "caption": "RIGHT NOW…",
+  "scene": {
+   "background": "kitchen",
+   "left": "leo",
+   "right": "dad"
+  },
+  "lines": [
+   {
+    "speaker": "dad",
+    "text": "Leo! Why is Mom eating in the *HALLWAY?!*",
+    "action": "surprised",
+    "expression": "surprised",
+    "listener": {
+     "action": "idle",
+     "expression": "neutral"
+    },
+    "pause_after": 0.3
+   },
+   {
+    "speaker": "leo",
+    "text": "Mom said: *No screens at dinner.*",
+    "action": "talk",
+    "expression": "smug",
+    "listener": {
+     "action": "facepalm",
+     "expression": "worried"
+    },
+    "pause_after": 0.3
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "background": "living_room",
+   "caption": "TEN MINUTES EARLIER",
+   "left": "leo",
+   "center": "dad",
+   "right": "mom",
+   "lines": [
+    {
+     "speaker": "mom",
+     "text": "Dinner time! Remember: *No screens at dinner!*",
+     "action": "talk",
+     "expression": "happy",
+     "listeners": {
+      "leo": {
+       "action": "idle",
+       "expression": "neutral"
+      },
+      "dad": {
+       "action": "idle",
+       "expression": "annoyed"
+      }
+     },
+     "pause_after": 0.3
+    },
+    {
+     "speaker": "dad",
+     "text": "Just one funny video on my phone.",
+     "action": "phone",
+     "expression": "happy",
+     "listeners": {
+      "leo": {
+       "action": "point",
+       "expression": "neutral"
+      },
+      "mom": {
+       "action": "cross_arms",
+       "expression": "annoyed"
+      }
+     },
+     "pause_after": 0.3
+    },
+    {
+     "speaker": "leo",
+     "text": "No phone, Dad. Give it here.",
+     "action": "talk",
+     "expression": "neutral",
+     "listeners": {
+      "dad": {
+       "action": "facepalm",
+       "expression": "sad"
+      },
+      "mom": {
+       "action": "talk",
+       "expression": "happy"
+      }
+     },
+     "pause_after": 0.3
+    },
+    {
+     "speaker": "dad",
+     "text": "Then I will watch the big TV.",
+     "action": "point",
+     "expression": "happy",
+     "listeners": {
+      "leo": {
+       "action": "think",
+       "expression": "neutral"
+      },
+      "mom": {
+       "action": "cross_arms",
+       "expression": "annoyed"
+      }
+     },
+     "pause_after": 0.3
+    },
+    {
+     "speaker": "leo",
+     "text": "TV is a screen too, Dad.",
+     "action": "talk",
+     "expression": "neutral",
+     "listeners": {
+      "dad": {
+       "action": "surprised",
+       "expression": "sad"
+      },
+      "mom": {
+       "action": "laugh",
+       "expression": "happy"
+      }
+     },
+     "pause_after": 0.3
+    }
+   ]
+  },
+  {
+   "background": "kitchen",
+   "caption": "AT THE DINNER TABLE",
+   "left": "leo",
+   "center": "dad",
+   "right": "mom",
+   "lines": [
+    {
+     "speaker": "dad",
+     "text": "Fine! I only check my smartwatch.",
+     "action": "talk",
+     "expression": "annoyed",
+     "listeners": {
+      "leo": {
+       "action": "point",
+       "expression": "neutral"
+      },
+      "mom": {
+       "action": "idle",
+       "expression": "neutral"
+      }
+     },
+     "pause_after": 0.3
+    },
+    {
+     "speaker": "leo",
+     "text": "A smartwatch is a screen, Dad.",
+     "action": "talk",
+     "expression": "smug",
+     "listeners": {
+      "dad": {
+       "action": "facepalm",
+       "expression": "sad"
+      },
+      "mom": {
+       "action": "laugh",
+       "expression": "happy"
+      }
+     },
+     "pause_after": 0.3
+    },
+    {
+     "speaker": "mom",
+     "text": "Dad loses! Leo is the screen police.",
+     "action": "laugh",
+     "expression": "happy",
+     "listeners": {
+      "leo": {
+       "action": "idle",
+       "expression": "smug"
+      },
+      "dad": {
+       "action": "cross_arms",
+       "expression": "sad"
+      }
+     },
+     "pause_after": 0.5
+    },
+    {
+     "speaker": "mom",
+     "text": "Wait, Grandma is calling my phone!",
+     "action": "phone_call",
+     "expression": "surprised",
+     "listeners": {
+      "leo": {
+       "action": "point",
+       "expression": "smug"
+      },
+      "dad": {
+       "action": "surprised",
+       "expression": "surprised"
+      }
+     },
+     "pause_after": 0.6
+    },
+    {
+     "speaker": "leo",
+     "text": "Eat in the hallway, Mom.",
+     "action": "talk",
+     "expression": "smug",
+     "listeners": {
+      "mom": {
+       "action": "surprised",
+       "expression": "surprised"
+      },
+      "dad": {
+       "action": "laugh",
+       "expression": "happy"
+      }
+     },
+     "punchline": true,
+     "pause_after": 1.5
+    }
+   ]
+  }
+ ],
+ "outro": {
+  "actions": {
+   "leo": "shrug",
+   "mom": "facepalm",
+   "dad": "laugh"
+  },
+  "expressions": {
+   "leo": "smug",
+   "mom": "annoyed",
+   "dad": "happy"
+  }
+ },
+ "episode": 1,
+ "score": {
+  "kid": 1,
+  "adults": 0
+ },
+ "situation": "screen time rules",
+ "date": "2026-10-12"
+}
