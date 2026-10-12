@@ -70,7 +70,10 @@ def build_prompt(history, situation, episode, score):
 def keys_from_env(*names):
     keys = []
     for name in names:
-        for k in re.split(r"[,\s]+", os.getenv(name, "")):
+        for k in re.split(r"[,;\s]+", os.getenv(name, "")):
+            k = k.strip().strip("'\"`")
+            if "=" in k:              # pasted as NAME=value
+                k = k.split("=", 1)[1]
             if k and k not in keys:
                 keys.append(k)
     return keys
