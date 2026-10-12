@@ -85,12 +85,70 @@ def providers():
     groq = keys_from_env("GROQ_API_KEYS", "GROQ_API_KEY")
     if groq:
         out.append(("groq", "https://api.groq.com/openai/v1", groq,
-                    os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").split(",")))
+                    [m for m in os.getenv("GROQ_MODEL", "").split(",") if m.strip()]))
     gemini = keys_from_env("GEMINI_API_KEYS", "GEMINI_API_KEY")
     if gemini:
         out.append(("gemini", "https://generativelanguage.googleapis.com/v1beta/openai", gemini,
-                    os.getenv("GEMINI_MODEL", "gemini-2.5-flash,gemini-2.0-flash").split(",")))
+                    [m for m in os.getenv("GEMINI_MODEL", "").split(",") if m.strip()]))
     return out
+
+
+# ------------------------------------------------------------------ model discovery
+# Model names get retired often, so we ask each provider which models exist today and
+# pick the best text model. GROQ_MODEL / GEMINI_MODEL still win when they are set.
+SKIP = re.compile(r"whisper|guard|tts|speech|audio|embed|image|vision|live|playai|orpheus|transcri|"
+                  r"moderation|compound|safeguard|aqa|learnlm|gemma|nano|robotics|computer-use|openai/|gpt", re.I)
+
+
+def list_models(base, key):
+    req = urllib.request.Request(f"{base.rstrip('/')}/models",
+                                 headers={"Authorization": f"Bearer {key}", "Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            data = json.loads(r.read())
+        return [m.get("id", "").replace("models/", "") for m in data.get("data", [])]
+    except Exception as e:
+        print(f"  ! could not list models at {base}: {e}", file=sys.stderr)
+        return []
+
+
+def version_of(name):
+    nums = re.findall(r"(\d+(?:\.\d+)?)", name)
+    return float(nums[0]) if nums else 0.0
+
+
+def size_of(name):
+    m = re.search(r"(\d+)b\b", name.lower())
+    return int(m.group(1)) if m else 0
+
+
+def rank_models(provider, names):
+    """Best-first list of chat models worth trying for creative writing."""
+    names = [n for n in names if n and not SKIP.search(n)]
+    if provider == "gemini":
+        cand = [n for n in names if n.startswith("gemini") and ("flash" in n or "pro" in n)]
+        # free tier: flash first (newest version first), stable before preview, lite last, then pro
+        def key(n):
+            return ("pro" in n, "lite" in n, "preview" in n or "exp" in n, -version_of(n.split("gemini-")[-1]), n)
+        return sorted(cand, key=key)
+    # groq: big general chat models first
+    prefer = ["kimi", "llama-4-maverick", "llama-3.3-70b", "qwen", "deepseek", "llama-4", "llama", "mistral"]
+    def key(n):
+        low = n.lower()
+        rank = next((i for i, p in enumerate(prefer) if p in low), len(prefer))
+        return (rank, -size_of(low), "instant" in low or "8b" in low, n)
+    return sorted(names, key=key)
+
+
+def models_for(name, base, keys, fixed):
+    if fixed:
+        return [m.strip() for m in fixed]
+    for key in keys:
+        found = rank_models(name, list_models(base, key))
+        if found:
+            print(f"  {name} models available: {', '.join(found[:5])}", file=sys.stderr)
+            return found[:4]
+    return []
 
 
 def post(url, key, body):
@@ -126,7 +184,11 @@ def chat(messages):
     errors = []
     for name, base, keys, models in plist:
         url = f"{base.rstrip('/')}/chat/completions"
-        for model in [m.strip() for m in models if m.strip()]:
+        models = models_for(name, base, keys, models)
+        if not models:
+            errors.append(f"{name}: no usable chat model found (check the key)")
+            continue
+        for model in models:
             model_missing = False
             for ki, key in enumerate(keys):
                 tag = f"{name}/{model} key#{ki + 1} (...{key[-4:]})"
@@ -153,7 +215,7 @@ def chat(messages):
 
 
 def extract_json(text):
-    text = text.strip()
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()  # reasoning models
     m = re.search(r"```(?:json)?\s*(\{.*\})\s*```", text, re.S)
     if m:
         text = m.group(1)
