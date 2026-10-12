@@ -24,7 +24,6 @@ on:
 
 permissions:
   contents: write     # commit the new story + history
-  models: read        # GitHub Models (free LLM) with GITHUB_TOKEN
 
 concurrency:
   group: episode
@@ -74,7 +73,10 @@ jobs:
       - name: Write today's story
         id: story
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # free LLM keys, add them in Settings -> Secrets and variables -> Actions
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SITUATION: ${{ inputs.situation }}
         run: |
           if [ -n "${{ inputs.story }}" ]; then

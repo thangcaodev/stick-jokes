@@ -28,8 +28,9 @@ and sounds like the same show. `channel/history.json` keeps every episode (numbe
 
 ## Daily automation (GitHub Actions)
 `.github/workflows/episode.yml` runs every day at 08:00 (Vietnam) and on demand (Actions → Kid Logic episode → Run workflow):
-1. `scripts/generate_story.py` writes the episode with GitHub Models (free, uses `GITHUB_TOKEN`),
-   checks it against the rules (cast, actions, 12-word lines, 30–45 s) and asks the model to fix problems.
+1. `scripts/generate_story.py` writes the episode with a free LLM: Gemini (`GEMINI_API_KEY`), then Groq
+   (`GROQ_API_KEY`) as backup. Add the keys as repository secrets. It checks the story against the
+   rules (cast, actions, 12-word lines, 30–45 s) and asks the model to fix problems.
 2. `scripts/tts.py` makes voices + music, `scripts/render.mjs` renders the MP4.
 3. The video is uploaded as a run artifact; the story and `history.json` are committed back.
 Use another OpenAI-compatible LLM with `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`.
